@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<router-rule>
+    <table-shard-rule table="user" generatedPK="id">
+        <shard-dimension dbRule="(#id#.intValue() % 4).intdiv(2)"
+                         dbIndexes="id0,id1"
+                         tbRule="#id#.intValue() % 2"
+                         tbSuffix="alldb:[0,3]"
+                         isMaster="true">
+        </shard-dimension>
+    </table-shard-rule>
+    <table-shard-rule table="user_account" generatedPK="id">
+        <shard-dimension dbRule="(#user_id#.intValue() % 4).intdiv(2)"
+                         dbIndexes="id0,id1"
+                         tbRule="#user_id#.intValue() % 2"
+                         tbSuffix="alldb:[0,3]"
+                         isMaster="true">
+        </shard-dimension>
+    </table-shard-rule>
+</router-rule>

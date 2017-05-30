@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+    <!--配置Dragon数据源-->
+    <context:property-placeholder location="single/single.properties"></context:property-placeholder>
+    <bean id="singleDataSource" class="com.dianping.zebra.single.jdbc.DruidSingleDataSource" init-method="init" destroy-method="close">
+        <property name="url" value="${url}" />
+        <property name="username" value="${username}" />
+        <property name="password" value="${password}" />
+        <property name="initialSize" value="5" />
+        <property name="maxActive" value="30" />
+        <property name="maxIdle" value="20" />
+        <property name="minIdle" value="5" />
+        <property name="maxWait" value="1000" />
+        <property name="testWhileIdle" value="true"/>
+        <property name="testOnBorrow" value="false"/>
+        <property name="testOnReturn" value="false"/>
+        <property name="removeAbandoned" value="true"/>
+        <property name="removeAbandonedTimeout" value="300"/>
+        <property name="validationQuery" value="select 1" />
+        <property name="timeBetweenEvictionRunsMillis" value="300000" />
+        <property name="minEvictableIdleTimeMillis" value="300000" />
+    </bean>
+    <!--配置Mybatis-->
+    <!--<bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="singleDataSource"></property>
+        <property name="configLocation" value="mybatis/mybatis-config.xml"></property>
+    </bean>-->
+
+    <bean class="com.dianping.zebra.dao.mybatis.ZebraMapperScannerConfigurer">
+        <property name="basePackage" value="com.tianshouzhi.zebra.mapper" />  <!--这里改成实际dao目录,如果有多个，可以用,;\t\n进行分割-->
+        <property name="sqlSessionFactoryBeanName" value="zebraSqlSessionFactory"/>
+        <!--Optional，Default is 20，remove this if aysc api is not used-->
+        <property name="corePoolSize" value="20"></property>
+        <!--Optional，Default is 200，remove this if aysc api is not used-->
+        <property name="maxPoolSize" value="200"></property>
+        <!--Optional，Default is 500，remove this if aysc api is not used-->
+        <property name="queueSize" value="500"></property>
+    </bean>
+
+    <bean id="zebraSqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <!--Please config dataource bean-->
+        <property name="dataSource" ref="singleDataSource" />
+        <!--Please config mapper files -->
+        <property name="mapperLocations" value="classpath*:mybatis/mappers/**.xml" />
+        <!--Please config entity package -->
+        <property name="typeAliasesPackage" value="com.tianshouzhi.zebra.domain" /> <!--这里改成实际entity目录,如果有多个，可以用,;\t\n进行分割-->
+    </bean>
+</beans>

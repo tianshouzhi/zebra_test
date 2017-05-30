@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+    <bean id="zebraDs0" class="com.dianping.zebra.single.jdbc.SingleDataSource" init-method="init" destroy-method="close">
+        <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/dragon_sharding_0?characterEncoding=UTF8"/>
+        <property name="user" value="root" />
+        <property name="password" value="shxx12151022" />
+        <property name="driverClass" value="com.mysql.jdbc.Driver" />
+        <property name="poolType" value="c3p0" />
+        <property name="minPoolSize" value="2" />
+        <property name="maxPoolSize" value="10" />
+        <property name="initialPoolSize" value="2" />
+        <property name="checkoutTimeout" value="2000" />
+        <property name="maxIdleTime" value="1800" />
+        <property name="idleConnectionTestPeriod" value="60" />
+        <property name="acquireRetryAttempts" value="3" />
+        <property name="acquireRetryDelay" value="300" />
+        <property name="maxStatements" value="0" />
+        <property name="maxStatementsPerConnection" value="100" />
+        <property name="numHelperThreads" value="6" />
+        <property name="maxAdministrativeTaskTime" value="5" />
+        <property name="preferredTestQuery" value="SELECT 1" />
+    </bean>
+    <bean id="zebraDs1" class="com.dianping.zebra.single.jdbc.SingleDataSource" init-method="init" destroy-method="close">
+        <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/dragon_sharding_1?characterEncoding=UTF8"/>
+        <property name="user" value="root" />
+        <property name="password" value="shxx12151022" />
+        <property name="driverClass" value="com.mysql.jdbc.Driver" />
+        <property name="poolType" value="c3p0" />
+        <property name="minPoolSize" value="2" />
+        <property name="maxPoolSize" value="10" />
+        <property name="initialPoolSize" value="2" />
+        <property name="checkoutTimeout" value="2000" />
+        <property name="maxIdleTime" value="1800" />
+        <property name="idleConnectionTestPeriod" value="60" />
+        <property name="acquireRetryAttempts" value="3" />
+        <property name="acquireRetryDelay" value="300" />
+        <property name="maxStatements" value="0" />
+        <property name="maxStatementsPerConnection" value="100" />
+        <property name="numHelperThreads" value="6" />
+        <property name="maxAdministrativeTaskTime" value="5" />
+        <property name="preferredTestQuery" value="SELECT 1" />
+    </bean>
+    <bean id="zebraDS" class="com.dianping.zebra.shard.jdbc.ShardDataSource" init-method="init">
+        <property name="dataSourcePool">
+            <map>
+                <entry key="id0" value-ref="zebraDs0"/>
+                <entry key="id1" value-ref="zebraDs1"/>
+            </map>
+        </property>
+        <property name="routerFactory">
+            <bean class="com.dianping.zebra.shard.router.builder.XmlResourceRouterBuilder">
+                <constructor-arg value="shard/router-local-rule.xml"/>
+            </bean>
+        </property>
+        <!--业务自行调整并发查询的线程池参数 -->
+        <property name="parallelCorePoolSize" value="16" />
+        <!--业务自行调整并发查询的线程池参数 -->
+        <property name="parallelMaxPoolSize" value="32" />
+        <!--业务自行调整并发查询的线程池参数 -->
+        <property name="parallelWorkQueueSize" value="500" />
+        <!--业务自行调整逻辑SQL在线程池里面的超时时间，可以在beta环境设置的大一点 -->
+        <property name="parallelExecuteTimeOut" value="3000" />
+    </bean>
+    <!--配置Mybatis-->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="zebraDS"></property>
+        <property name="configLocation" value="mybatis/mybatis-config.xml"></property>
+    </bean>
+</beans>
